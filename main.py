@@ -58,19 +58,6 @@ def main():
     labelframe = tkinter.LabelFrame(frmMain, width=320, height=140, text="取得対象のサイト")
     labelframe.grid(row=0, column=0, pady=10, ipadx=10, ipady=10)
 
-    # radioValue = tkinter.IntVar()
-    # rdioOne = tkinter.Radiobutton(labelframe, text='Googleマップとgoo地図両方',
-    #                          variable=radioValue, value=0)
-    # rdioTwo = tkinter.Radiobutton(labelframe, text='Googleマップのみ',
-    #                          variable=radioValue, value=1)
-    # rdioThree = tkinter.Radiobutton(labelframe, text='goo地図のみ',
-    #                          variable=radioValue, value=2)
-    # rdioOne.grid(row=0, column=0, padx=5)
-    # rdioTwo.grid(row=0, column=1, padx=5)
-    # rdioThree.grid(row=0, column=2, padx=5)
-    # # ラジオボタンの初期値を設定する
-    # radioValue.set(0)
-
     # ギフトショップ検索チェックボックス
     giftshop_chk_state = BooleanVar()
     giftshop_chk_state.set(True)
@@ -106,11 +93,11 @@ def main():
 
 def execute_scraip(giftshop_flg, navitime_flg, mapion_flg, jouhouya_flg):
 
-    # 有効期限チェック
-    if not (expexpiration_date_check()):
-        logger.info("有効期限切れため、プログラム起動終了")
-        messagebox.showerror("エラー", "有効期限切れのため、処理を実行できません。")
-        return
+    # # 有効期限チェック
+    # if not (expexpiration_date_check()):
+    #     logger.info("有効期限切れため、プログラム起動終了")
+    #     messagebox.showerror("エラー", "有効期限切れのため、処理を実行できません。")
+    #     return
 
     try:
         logger.info("取得開始ボタンクリック")

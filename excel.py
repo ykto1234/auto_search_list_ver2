@@ -67,38 +67,6 @@ def out_to_excel(data_list, title_name, input_data, mode):
                 if postal_code and postal_code != "-":
                     row.postal_code = postal_code[:3] + "-" + postal_code[3:]
 
-        # if mode == 1:
-        #     # Googleマップモード
-        #     # 住所チェック（都道府県名が住所に含まれていない場合、出力対象から除外）
-        #     if not input_data.prefecture in row.address:
-        #         continue
-        #     # 業種チェック
-        #     for target_industry in input_data.target_industry_list:
-        #         if target_industry in row.industry:
-        #             # 絞り込み業種に１つでも含まれる行の場合、出力する
-        #             output_flg = True
-        #             break
-        #         else:
-        #             output_flg = False
-        # else:
-        #     # goo地図モード
-        #     for exclusion_word in input_data.exclusion_genre.split(","):
-        #         if exclusion_word in row.genre:
-        #             output_flg = False
-
-        # if not output_flg:
-        #     continue
-
-        # # goo地図モードの場合、郵便番号を取得する
-        # if mode == 2:
-        #     row.postal_code = "-"
-        #     match_obj = re.search(r"\d", row.address)
-        #     if match_obj:
-        #         target_address = row.address[:match_obj.start()]
-        #         postal_code = settings.read_postal_code("", "", "", target_address.replace(' ', ''))
-        #         if postal_code and postal_code != "-":
-        #             row.postal_code = postal_code[:3] + "-" + postal_code[3:]
-
         target_ws.append([row.storename, row.postal_code,
                   row.address, row.tel_number, row.web_url])
 
