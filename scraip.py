@@ -22,15 +22,9 @@ def create_driver():
     # chromeドライバーのパス
     chrome_path = "./driver/chromedriver.exe"
 
-    # 拡張機能のパス
-    extensions_path = "./extensions/5.0.4_0.crx"
-
     # TODO:Selenium用オプション
     op = Options()
     op.add_argument('--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Safari/605.1.15')
-
-    # HotSpot Sheildを拡張機能として追加
-    # op.add_extension(extensions_path)
 
     #op.add_argument("--disable-gpu");
     #op.add_argument("--disable-extensions");
@@ -544,4 +538,108 @@ def search_jouhouya(driver, url, prefecture, industry):
     except TimeoutException:
         logger.error("TimeoutExceptionが発生したため、次の検索に移ります")
         logger.error("街の情報屋さん検索処理 検索県名：" + prefecture + "、キーワード：" + industry)
+        return searchOutputInfoList
+
+
+def search_odekake(driver, url, prefecture, industry):
+    try:
+        # ドメインのURLを取得
+        domain_url = '{uri.scheme}://{uri.netloc}/'.format(uri=urllib.parse.urlparse(url))
+
+        # 結果データリスト
+        searchOutputInfoList = []
+
+        # データがなかった時ようのハイフン
+        NO_DATA_STR = '-'
+
+        page_index = 0
+
+        targrt_url = url + 'page/' + prefecture + '/' + industry + '.html'
+        driver.get(targrt_url)
+
+        # 404のケースチェック
+        h1_sel = 'h1'
+        WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, h1_sel))
+        )
+        tmp_soup = BeautifulSoup(driver.page_source, features="html.parser")
+        h1_eles = tmp_soup.select(h1_sel)
+        for h1_ele in h1_eles:
+            if '404 File not found' in h1_ele.text:
+                logger.info('検索結果が見つかりませんでした。検索条件：' + prefecture + ' ' + industry)
+                return searchOutputInfoList
+
+        # 次ページが押せなくなるまで繰り返す
+        while True:
+            li_sel = "ul > li"
+            WebDriverWait(driver, 30).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, li_sel))
+            )
+            soup = BeautifulSoup(driver.page_source, features="html.parser")
+
+            li_eles = soup.select(li_sel)
+
+            if not len(li_eles):
+                return searchOutputInfoList
+
+            for li_ele in li_eles:
+                li_text = li_ele.text
+
+                if not industry in li_text:
+                    continue
+
+                # 初期値設定
+                _searchOutputInfo = SearchOutputInfo()
+                _searchOutputInfo.search_keyword = industry
+                _searchOutputInfo.search_areaname = prefecture
+                _searchOutputInfo.storename = NO_DATA_STR
+                _searchOutputInfo.address = NO_DATA_STR
+                _searchOutputInfo.tel_number = NO_DATA_STR
+                _searchOutputInfo.web_url = NO_DATA_STR
+                _searchOutputInfo.industry = NO_DATA_STR
+
+                item_list = []
+                item_list = li_text.split('\n')
+                _searchOutputInfo.storename = item_list[0]
+                client_info_list = item_list[1].split('\u3000')
+                if len(client_info_list) > 0:
+                   postalcode_text = client_info_list[0].replace('〒', '')
+                   _searchOutputInfo.postal_code = postalcode_text
+                if len(client_info_list) > 1:
+                   _searchOutputInfo.address = client_info_list[1]
+                if len(client_info_list) > 2:
+                   tel_number_text = client_info_list[2].replace('TEL', '')
+                   tel_number_text = tel_number_text.replace('-', '')
+                   _searchOutputInfo.tel_number = tel_number_text.strip()
+
+                _searchOutputInfo.industry = industry
+
+                searchOutputInfoList.append(_searchOutputInfo)
+
+            # 次へボタン確認
+            pagenation_sel = "div#main > a"
+            pagenation_eles = soup.select(pagenation_sel)
+            if not len(pagenation_eles):
+                break
+
+            next_page_url = ''
+
+            for pagenation_ele in pagenation_eles:
+                page_text = pagenation_ele.text
+                if '次のページ' in page_text:
+                    next_page_url = pagenation_ele.get("href")
+
+            # 次のページへ
+            if not next_page_url:
+                break
+
+            driver.get(next_page_url)
+            continue
+
+        return searchOutputInfoList
+
+
+    except TimeoutException:
+        logger.error("TimeoutExceptionが発生したため、次の検索に移ります")
+        logger.error("おでかけタウン情報検索処理 検索県名：" + prefecture + "、キーワード：" + industry)
         return searchOutputInfoList

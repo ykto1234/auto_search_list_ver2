@@ -7,6 +7,7 @@ class SearchInputInfo:
         self.industry = None
         self.area = None
         self.prefecture = None
+        self.target_industry_str = None
         self.target_industry_list = []
         self.exclusion_genre = None
         self.genre = []
@@ -37,3 +38,9 @@ class SearchOutputInfo:
 
     def __hash__(self):
         return hash(self.storename)
+
+
+class ExcelList:
+    def __init__(self):
+        self.out_file_path = None
+        self.sheet_name = None

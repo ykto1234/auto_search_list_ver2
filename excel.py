@@ -3,9 +3,11 @@ import os
 import settings
 import re
 import pandas as pd
+import search_list
+
 
 # modeは「1：ギフトショップ、2：NAVITIME」
-def out_to_excel(data_list, title_name, input_data, mode):
+def out_to_excel(data_list, title_name, input_data, site_name, mode):
 
     # リストから店名が重複する行を削除する
     data_set = set(data_list)
@@ -21,6 +23,12 @@ def out_to_excel(data_list, title_name, input_data, mode):
         file_path = './output/MAPION検索結果.xlsx'
     elif mode == 4:
         file_path = './output/街の情報屋さん検索結果.xlsx'
+    elif mode == 5:
+        file_path = './output/おでかけタウン情報検索結果.xlsx'
+    elif mode == 6:
+        file_path = './output/goo地図検索結果.xlsx'
+    elif mode == 7:
+        file_path = './output/Googleマップ検索結果.xlsx'
     else:
         return
 
@@ -43,22 +51,41 @@ def out_to_excel(data_list, title_name, input_data, mode):
         target_ws = ws
 
     # ヘッダーを書き込む
-    target_ws.append(['店名', '郵便番号', '住所', '電話番号', 'URL（ウェブサイト）'])
+    target_ws.append(['店名', '業種名', '郵便番号', '住所', '電話番号', 'URL（ウェブサイト）', '取得元サイト名'])
 
     # データを書き込む
     for row in data_set:
         output_flg = True
 
-        # 店名に除外キーワードが含まれる場合、除外する
-        for exclusion_word in input_data.exclusion_genre.split(","):
-            if exclusion_word and exclusion_word in row.storename:
-                output_flg = False
+        if mode in (1, 2, 3, 4, 6):
+            # 店名に除外キーワードが含まれる場合、除外する
+            for exclusion_word in input_data.exclusion_genre.split(","):
+                if exclusion_word and exclusion_word in row.storename:
+                    output_flg = False
+        elif mode == 5:
+            # 店名からキーワード絞り込み
+            for target_industry in input_data.target_industry_list:
+                if target_industry in row.storename :
+                    # 店名に絞り込み業種のキーワードが１つでも含まれる行の場合、出力する
+                    output_flg = True
+                    break
+                else:
+                    output_flg = False
+        else:
+            # 業種チェック
+            for target_industry in input_data.target_industry_list:
+                if target_industry in row.industry:
+                    # 絞り込み業種に１つでも含まれる行の場合、出力する
+                    output_flg = True
+                    break
+                else:
+                    output_flg = False
 
         if not output_flg:
             continue
 
         # 郵便番号を取得する
-        if mode == 1 or mode == 2 or mode == 3:
+        if mode in (1, 2, 3, 6):
             row.postal_code = "-"
             match_obj = re.search(r"\d", row.address)
             if match_obj:
@@ -67,8 +94,8 @@ def out_to_excel(data_list, title_name, input_data, mode):
                 if postal_code and postal_code != "-":
                     row.postal_code = postal_code[:3] + "-" + postal_code[3:]
 
-        target_ws.append([row.storename, row.postal_code,
-                  row.address, row.tel_number, row.web_url])
+        target_ws.append([row.storename, row.industry, row.postal_code,
+                  row.address, row.tel_number, row.web_url, site_name])
 
     if backup_name:
         del wb[backup_name]
@@ -76,29 +103,15 @@ def out_to_excel(data_list, title_name, input_data, mode):
     wb.save(file_path)
 
 
-def merge_excel(giftshop_file_path, navitime_file_path, mapion_file_path, jouhouya_file_path,
-                giftshop_sheet_name, navitime_sheet_name, mapion_sheet_name, jouhouya_sheetname):
-
-    # 各Excelデータを読み込む
-    if giftshop_file_path:
-        df_giftshop_result_file = pd.read_excel(giftshop_file_path, dtype=str, sheet_name=giftshop_sheet_name, header=0, usecols="A:E")
-    if navitime_file_path:
-        df_navitime_result_file = pd.read_excel(navitime_file_path, dtype=str, sheet_name=navitime_sheet_name, header=0, usecols="A:E")
-    if mapion_file_path:
-        df_mapion_result_file = pd.read_excel(mapion_file_path, dtype=str, sheet_name=mapion_sheet_name, header=0, usecols="A:E")
-    if jouhouya_file_path:
-        df_jouhouya_result_file = pd.read_excel(jouhouya_file_path, dtype=str, sheet_name=jouhouya_sheetname, header=0, usecols="A:E")
+def merge_excel(excel_item_list: list):
 
     # データを結合する
     df_merge = pd.DataFrame(data=None, index=None, columns=None, dtype=None, copy=False)
-    if giftshop_file_path:
-        df_merge = df_merge.append(df_giftshop_result_file)
-    if navitime_file_path:
-        df_merge = df_merge.append(df_navitime_result_file)
-    if mapion_file_path:
-        df_merge = df_merge.append(df_mapion_result_file)
-    if jouhouya_file_path:
-        df_merge = df_merge.append(df_jouhouya_result_file)
+
+    # 各Excelデータを読み込む
+    for excel_item in excel_item_list:
+        df_tmp = pd.read_excel(excel_item.out_file_path, dtype=str, sheet_name=excel_item.sheet_name, header=0, usecols="A:G")
+        df_merge = df_merge.append(df_tmp)
 
     # データフレームから全て空白の値の行を削除する
     df_merge_formatted = df_merge.dropna(how='all', axis=0)
@@ -120,18 +133,20 @@ def merge_excel(giftshop_file_path, navitime_file_path, mapion_file_path, jouhou
 
     backup_name = ""
 
+    target_sheet_name = excel_item_list[0].sheet_name
+
     if os.path.exists(file_path):
         # Excelファイルが存在する場合、既存ファイルに新規シートを書き込み
         wb = load_workbook(file_path)
-        if giftshop_sheet_name in wb.sheetnames:
+        if target_sheet_name in wb.sheetnames:
             # 同じシート名が存在する場合
-            backup_name = giftshop_sheet_name + "_bak"
-            wb[giftshop_sheet_name].title = backup_name
+            backup_name = target_sheet_name + "_bak"
+            wb[target_sheet_name].title = backup_name
             wb.save(file_path)
             wb.close()
 
         with pd.ExcelWriter(file_path, engine="openpyxl", mode="a") as writer:
-            df_ret.to_excel(writer, sheet_name=giftshop_sheet_name, index=False, header=True)
+            df_ret.to_excel(writer, sheet_name=target_sheet_name, index=False, header=True)
 
         if backup_name:
             wb = load_workbook(file_path)
@@ -141,6 +156,6 @@ def merge_excel(giftshop_file_path, navitime_file_path, mapion_file_path, jouhou
 
     else:
         # Excelファイルが存在しない場合、新規ファイルを作成する
-        df_ret.to_excel(file_path, sheet_name=giftshop_sheet_name, index=False, header=True)
+        df_ret.to_excel(file_path, sheet_name=target_sheet_name, index=False, header=True)
 
     return
