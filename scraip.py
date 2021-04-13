@@ -18,21 +18,24 @@ import urllib
 # ログの定義
 logger = mylogger.setup_logger(__name__)
 
-def create_driver():
+def create_driver(headless_flg=False):
     # chromeドライバーのパス
     chrome_path = "./driver/chromedriver.exe"
 
-    # TODO:Selenium用オプション
+    # Selenium用オプション
     op = Options()
     op.add_argument('--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Safari/605.1.15')
+    op.add_experimental_option("excludeSwitches", ["enable-automation"])
+    op.add_experimental_option('useAutomationExtension', False)
 
-    #op.add_argument("--disable-gpu");
-    #op.add_argument("--disable-extensions");
-    #op.add_argument("--proxy-server='direct://'");
-    #op.add_argument("--proxy-bypass-list=*");
-    #op.add_argument("--start-maximized");
-    #op.add_argument("--headless");
-    #driver = webdriver.Chrome(chrome_options=op)
+    if headless_flg:
+        op.add_argument("--disable-gpu")
+        op.add_argument("--disable-extensions")
+        op.add_argument("--proxy-server='direct://'")
+        op.add_argument("--proxy-bypass-list=*")
+        op.add_argument("--start-maximized")
+        op.add_argument("--headless")
+        #driver = webdriver.Chrome(chrome_options=op)
     driver = webdriver.Chrome(executable_path=chrome_path, chrome_options=op)
     return driver
 
@@ -642,4 +645,126 @@ def search_odekake(driver, url, prefecture, industry):
     except TimeoutException:
         logger.error("TimeoutExceptionが発生したため、次の検索に移ります")
         logger.error("おでかけタウン情報検索処理 検索県名：" + prefecture + "、キーワード：" + industry)
+        return searchOutputInfoList
+
+
+def search_hotflog(driver, url, prefecture, industry):
+    try:
+
+        # 結果データリスト
+        searchOutputInfoList = []
+
+        driver.get(url)
+
+        # ドメインのURLを取得
+        domain_url = '{uri.scheme}://{uri.netloc}/'.format(uri=urllib.parse.urlparse(url))
+
+        # データがなかった時ようのハイフン
+        NO_DATA_STR = '-'
+
+        page_index = 1
+
+         # 次ページが押せなくなるまで繰り返す
+        while True:
+
+            # ターゲット出現を待機
+            div_sel = "div.hf-box-wrap"
+            WebDriverWait(driver, 30).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, div_sel))
+            )
+            soup = BeautifulSoup(driver.page_source, features="html.parser")
+
+            div_eles = soup.select(div_sel)
+
+            if not len(div_eles):
+                return searchOutputInfoList
+
+            tel_text_sel = 'div.w-100 > a > strong'
+            storename_sel = 'h3 > a > strong'
+            address_sel = 'span.small'
+            website_sel = 'small > span > a'
+
+            for div_ele in div_eles:
+
+                # 初期値設定
+                _searchOutputInfo = SearchOutputInfo()
+                _searchOutputInfo.search_keyword = industry
+                _searchOutputInfo.search_areaname = prefecture
+                _searchOutputInfo.storename = NO_DATA_STR
+                _searchOutputInfo.address = NO_DATA_STR
+                _searchOutputInfo.tel_number = NO_DATA_STR
+                _searchOutputInfo.web_url = NO_DATA_STR
+                _searchOutputInfo.industry = NO_DATA_STR
+
+                text_eles = div_ele.select(tel_text_sel)
+                if len(text_eles):
+                    _searchOutputInfo.tel_number = text_eles[0].text.strip().replace('-', '')
+
+                storename_eles = div_ele.select(storename_sel)
+                if len(storename_eles):
+                    _searchOutputInfo.storename = storename_eles[0].text.strip()
+
+                address_eles = div_ele.select(address_sel)
+                if len(address_eles) >= 2:
+                    address_text = address_eles[1].text.strip()
+                    address_list = []
+                    address_list = address_text.split(',')
+                    # 郵便番号
+                    postal_code_pattern = r"\d{3}-\d{4}"
+                    postal_code_rx = re.compile(postal_code_pattern)
+
+                    if len(address_list) == 3:
+                        postalcode_str = address_list[-1].strip()
+                        postal_code_mo =  postal_code_rx.search(postalcode_str)
+                        if postal_code_mo:
+                            _searchOutputInfo.postal_code = postal_code_mo.group()
+                        _searchOutputInfo.address = address_list[0].strip()
+                    elif len(address_list) == 4:
+                        postalcode_str = address_list[-1].strip()
+                        postal_code_mo =  postal_code_rx.search(postalcode_str)
+                        if postal_code_mo:
+                            _searchOutputInfo.postal_code = postal_code_mo.group()
+                        _searchOutputInfo.address = address_list[2].strip()  + address_list[1].strip() + address_list[0].strip()
+
+                website_eles = div_ele.select(website_sel)
+                for website_ele in website_eles:
+                    if website_ele.text.strip() == 'ウェブサイト':
+                        website_href = website_ele.get('href')
+                        _searchOutputInfo.web_url = website_href
+
+                searchOutputInfoList.append(_searchOutputInfo)
+
+            # 次へボタン確認
+            time.sleep(0.5)
+            driver.execute_script("window.scrollTo(0, window.maxScrollY, 0);")
+            time.sleep(1.0)
+            driver.execute_script("window.scrollTo(0, window.minScrollY, 0);")
+            time.sleep(1.0)
+            driver.execute_script("window.scrollTo(0, window.maxScrollY, 0);")
+            next_page_sel = "a.page-link"
+            next_page_eles = soup.select(next_page_sel)
+            if not len(next_page_eles):
+                break
+
+            next_flg = False
+            for next_page_ele in next_page_eles:
+                if next_page_ele.text.strip() == '次のページ':
+                    next_flg = True
+                    break
+
+            if next_flg:
+                # 次のページへ
+                page_index += 1
+                next_page_url = url + '/' + str(page_index)
+                driver.get(next_page_url)
+                continue
+            else:
+                break
+
+        return searchOutputInfoList
+
+
+    except TimeoutException:
+        logger.error("TimeoutExceptionが発生したため、次の検索に移ります")
+        logger.error("Hotflog検索処理 検索県名：" + prefecture + "、キーワード：" + industry)
         return searchOutputInfoList

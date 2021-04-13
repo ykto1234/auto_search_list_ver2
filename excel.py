@@ -29,6 +29,8 @@ def out_to_excel(data_list, title_name, input_data, site_name, mode):
         file_path = './output/goo地図検索結果.xlsx'
     elif mode == 7:
         file_path = './output/Googleマップ検索結果.xlsx'
+    elif mode == 8:
+        file_path = './output/Hotflog検索結果.xlsx'
     else:
         return
 
@@ -57,7 +59,7 @@ def out_to_excel(data_list, title_name, input_data, site_name, mode):
     for row in data_set:
         output_flg = True
 
-        if mode in (1, 2, 3, 4, 6):
+        if mode in (1, 2, 3, 4, 6, 8):
             # 店名に除外キーワードが含まれる場合、除外する
             for exclusion_word in input_data.exclusion_genre.split(","):
                 if exclusion_word and exclusion_word in row.storename:

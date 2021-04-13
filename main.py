@@ -37,11 +37,15 @@ global_johouya_sheetname_dic = {}
 # おでかけタウン情報のシート名の辞書
 global_odekake_sheetname_dic = {}
 
+# Hotflogのシート名の辞書
+global_hotflog_sheetname_dic = {}
+
+
 # 有効期限のチェック
 def expexpiration_date_check():
     import datetime
     now = datetime.datetime.now()
-    expexpiration_datetime = now.replace(month=3, day=17, hour=12, minute=0, second=0, microsecond=0)
+    expexpiration_datetime = now.replace(month=4, day=17, hour=12, minute=0, second=0, microsecond=0)
     logger.info("有効期限：" + str(expexpiration_datetime))
     if now < expexpiration_datetime:
         return True
@@ -124,18 +128,24 @@ def main():
     odekake_chk = Checkbutton(labelframe2, text='おでかけタウン情報を検索する', var=odekake_chk_state)
     odekake_chk.grid(row=4, column=0, padx=10, sticky=tkinter.W)
 
+    # Hotflog検索チェックボックス
+    hotflog_chk_state = BooleanVar()
+    hotflog_chk_state.set(True)
+    hotflog_chk = Checkbutton(labelframe2, text='Hotflogを検索する', var=hotflog_chk_state)
+    hotflog_chk.grid(row=0, column=1, padx=10, sticky=tkinter.W)
+
     # 実行ボタン
     InputButton = Button(frmMain, text="取得開始",
                          command = lambda : execute_scraip(google_chk_state.get(), googleRadioValue.get(), goo_chk_state.get(),
                                                            giftshop_chk_state.get(), navitime_chk_state.get(),
                                                            mapion_chk_state.get(), jouhouya_chk_state.get(),
-                                                           odekake_chk_state.get()))
+                                                           odekake_chk_state.get(), hotflog_chk_state.get()))
     InputButton.grid(row=2, column=1)
 
     root.mainloop()
 
 
-def execute_scraip(google_flg, google_radio_flg, goo_flg, giftshop_flg, navitime_flg, mapion_flg, jouhouya_flg, odekake_flg):
+def execute_scraip(google_flg, google_radio_flg, goo_flg, giftshop_flg, navitime_flg, mapion_flg, jouhouya_flg, odekake_flg, hotflog_flg):
 
     # # 有効期限チェック
     # if not (expexpiration_date_check()):
@@ -153,6 +163,7 @@ def execute_scraip(google_flg, google_radio_flg, goo_flg, giftshop_flg, navitime
         logger.info("MAPION：" + str(mapion_flg))
         logger.info("街の情報屋さん：" + str(jouhouya_flg))
         logger.info("おでかけタウン情報：" + str(odekake_flg))
+        logger.info("Hotfrog：" + str(hotflog_flg))
 
         # 検索対象リスト
         tmp_search_list = []
@@ -201,6 +212,8 @@ def execute_scraip(google_flg, google_radio_flg, goo_flg, giftshop_flg, navitime
         google_sheet_name = ""
         goo_file_path = ""
         goo_sheet_name = ""
+        hotflog_file_path = ""
+        hotflog_sheet_name = ""
 
         merge_flg = 0
 
@@ -237,6 +250,11 @@ def execute_scraip(google_flg, google_radio_flg, goo_flg, giftshop_flg, navitime
         if odekake_flg:
             odekake_main(odekake_search_list)
             odekake_file_path = "./output/おでかけタウン情報検索結果.xlsx"
+            merge_flg += 1
+
+        if hotflog_flg:
+            hotflog_main(tmp_search_list)
+            hotflog_file_path = "./output/Hotflog検索結果.xlsx"
             merge_flg += 1
 
         # ファイルをマージした結果を作成
@@ -294,6 +312,13 @@ def execute_scraip(google_flg, google_radio_flg, goo_flg, giftshop_flg, navitime
                     _excel_list.sheet_name = odekake_sheetname
                     excel_item_list.append(_excel_list)
 
+                if len(global_hotflog_sheetname_dic) >= index:
+                    hotflog_sheet_name = global_hotflog_sheetname_dic[index]
+                    _excel_list = search_list.ExcelList()
+                    _excel_list.out_file_path = hotflog_file_path
+                    _excel_list.sheet_name = hotflog_sheet_name
+                    excel_item_list.append(_excel_list)
+
                 # マージ処理呼び出し
                 excel.merge_excel(excel_item_list)
 
@@ -339,9 +364,6 @@ def goo_map_main():
     # goo地図キーワード検索処理
     logger.info('検索処理を開始します')
     GOO_MAP_URL = "https://map.goo.ne.jp"
-
-    # ブラウザ表示オプションの取得
-    DISPLAY = "1"
 
     # ドライバー生成処理
     driver = scraip.create_driver()
@@ -408,9 +430,6 @@ def google_map_main(google_search_mode):
     logger.info('Googleマップ検索処理を開始します')
     GOOGLE_MAP_URL = "https://www.google.co.jp/maps/?hl=ja"
 
-    # ブラウザ表示オプションの取得
-    DISPLAY = "1"
-
     # ドライバー生成処理
     driver = scraip.create_driver()
 
@@ -460,9 +479,6 @@ def giftshop_main(search_list):
 
     SITE_NAME = 'ギフトショップ'
 
-    # ブラウザ表示オプションの取得
-    DISPLAY = "1"
-
     # ドライバー生成処理
     driver = scraip.create_driver()
 
@@ -499,9 +515,6 @@ def navitime_main(search_list):
 
     SITE_NAME = 'NAVITIME'
 
-    # ブラウザ表示オプションの取得
-    DISPLAY = "1"
-
     # ドライバー生成処理
     driver = scraip.create_driver()
 
@@ -537,9 +550,6 @@ def mapion_main(search_list):
 
     SITE_NAME = 'MAPION'
 
-    # ブラウザ表示オプションの取得
-    DISPLAY = "1"
-
     # ドライバー生成処理
     driver = scraip.create_driver()
 
@@ -574,9 +584,6 @@ def jouhouya_main(search_list):
 
     SITE_NAME = '街の情報屋さん'
 
-    # ブラウザ表示オプションの取得
-    DISPLAY = "1"
-
     # ドライバー生成処理
     driver = scraip.create_driver()
 
@@ -609,9 +616,6 @@ def odekake_main(search_list):
 
     SITE_NAME = 'おでかけタウン情報'
 
-    # ブラウザ表示オプションの取得
-    DISPLAY = "1"
-
     # ドライバー生成処理
     driver = scraip.create_driver()
 
@@ -635,6 +639,38 @@ def odekake_main(search_list):
 
         # 辞書にシート名を登録
         global_odekake_sheetname_dic[sheet_index] = sheet_name
+        sheet_index += 1
+
+    # ブラウザを終了する。
+    driver.quit()
+
+
+def hotflog_main(search_list):
+
+    # Hotflog検索処理
+    logger.info('Hotflog検索処理を開始します')
+    HOTFLOG_BASE_URL = "https://www.hotfrog.jp/"
+
+    SITE_NAME = 'Hotflog'
+
+    # ドライバー生成処理
+    driver = scraip.create_driver(headless_flg=True)
+
+    sheet_index = 1
+
+    for search_dr in search_list:
+
+        target_url = HOTFLOG_BASE_URL + 'search/' + search_dr.prefecture + '/' + search_dr.industry
+
+        output_excel_list = []
+
+        output_list = scraip.search_hotflog(driver, target_url, search_dr.prefecture, search_dr.industry)
+        output_excel_list.extend(output_list)
+
+        excel.out_to_excel(output_excel_list, search_dr.industry + "_" + search_dr.prefecture, search_dr, SITE_NAME, 8)
+
+        # 辞書にシート名を登録
+        global_hotflog_sheetname_dic[sheet_index] = search_dr.industry + "_" + search_dr.prefecture
         sheet_index += 1
 
     # ブラウザを終了する。
