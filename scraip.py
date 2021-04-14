@@ -508,8 +508,12 @@ def search_jouhouya(driver, url, prefecture, industry):
                         continue
 
                     if name == "住所":
-                        zip_code = tr.select(zipcode_sel)[0].text
-                        address = tr.select(address_sel)[0].text
+                        zip_code_eles = tr.select(zipcode_sel)
+                        if len(zip_code_eles) > 0:
+                            zip_code = zip_code_eles[0].text
+                        address_eles = tr.select(address_sel)
+                        if len(address_eles) > 0:
+                            address = address_eles[0].text
                         _searchOutputInfo.postal_code = zip_code.replace("〒", "")
                         _searchOutputInfo.address = address
                         continue
