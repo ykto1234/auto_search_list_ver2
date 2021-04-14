@@ -240,8 +240,7 @@ def search_google_map(driver, search_keyword, url):
                     _searchOutputInfo.address = address
                     _searchOutputInfo.postal_code = postal_code
 
-            indeustry_content = driver.find_element_by_xpath('//button[@jsaction="pane.rating.category"]')
-            if indeustry_content:
+            for indeustry_content in driver.find_elements_by_xpath('//button[@jsaction="pane.rating.category"]'):
                 _searchOutputInfo.industry = indeustry_content.text
 
             for detail_content in driver.find_elements_by_css_selector("button.ugiz4pqJLAG__button"):
