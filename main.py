@@ -45,7 +45,8 @@ global_hotflog_sheetname_dic = {}
 def expexpiration_date_check():
     import datetime
     now = datetime.datetime.now()
-    expexpiration_datetime = now.replace(month=4, day=17, hour=12, minute=0, second=0, microsecond=0)
+    expexpiration_datetime = now.replace(
+        month=4, day=17, hour=12, minute=0, second=0, microsecond=0)
     logger.info("有効期限：" + str(expexpiration_datetime))
     if now < expexpiration_datetime:
         return True
@@ -53,29 +54,33 @@ def expexpiration_date_check():
         return False
 
 # 画面の表示
+
+
 def main():
 
     root = Tk()
-    #タイトル
+    # タイトル
     root.title('検索結果取得')
     root.minsize(450, 250)
 
     frmMain = Frame(root)
 
-    #Configure the row/col of our frame and root window to be resizable and fill all available space
+    # Configure the row/col of our frame and root window to be resizable and fill all available space
     frmMain.grid(row=0, column=0, sticky="NESW")
     frmMain.grid_columnconfigure(0, weight=1)
     root.grid_rowconfigure(0, weight=1)
     root.grid_columnconfigure(0, weight=1)
 
     # Label Frame1
-    labelframe1 = tkinter.LabelFrame(frmMain, width=320, height=140, text="取得対象の地図サイト")
+    labelframe1 = tkinter.LabelFrame(
+        frmMain, width=320, height=140, text="取得対象の地図サイト")
     labelframe1.grid(row=0, column=0, padx=10, pady=10, ipadx=10, ipady=10)
 
     # Googleマップ検索チェックボックス
     google_chk_state = BooleanVar()
     google_chk_state.set(True)
-    google_chk = Checkbutton(labelframe1, text='Googleマップを検索する', var=google_chk_state)
+    google_chk = Checkbutton(
+        labelframe1, text='Googleマップを検索する', var=google_chk_state)
     google_chk.grid(row=0, column=0, padx=10, sticky=tkinter.W)
 
     # goo地図検索チェックボックス
@@ -86,60 +91,67 @@ def main():
 
     googleRadioValue = tkinter.IntVar()
     rdioOne = tkinter.Radiobutton(labelframe1, text='Googleマップで市区町村を含めない',
-                             variable=googleRadioValue, value=0)
+                                  variable=googleRadioValue, value=0)
     rdioTwo = tkinter.Radiobutton(labelframe1, text='Googleマップで市区町村を含める　',
-                             variable=googleRadioValue, value=1)
+                                  variable=googleRadioValue, value=1)
     rdioOne.grid(row=2, column=0, padx=5)
     rdioTwo.grid(row=3, column=0, padx=5)
     # ラジオボタンの初期値を設定する
     googleRadioValue.set(0)
 
     # Label Frame2
-    labelframe2 = tkinter.LabelFrame(frmMain, width=320, height=140, text="取得対象の検索サイト")
+    labelframe2 = tkinter.LabelFrame(
+        frmMain, width=320, height=140, text="取得対象の検索サイト")
     labelframe2.grid(row=0, column=1, padx=10, pady=10, ipadx=10, ipady=10)
 
     # ギフトショップ検索チェックボックス
     giftshop_chk_state = BooleanVar()
     giftshop_chk_state.set(True)
-    giftshop_chk = Checkbutton(labelframe2, text='ギフトショップを検索する', var=giftshop_chk_state)
+    giftshop_chk = Checkbutton(
+        labelframe2, text='ギフトショップを検索する', var=giftshop_chk_state)
     giftshop_chk.grid(row=0, column=0, padx=10, sticky=tkinter.W)
 
     # NAVITIME検索チェックボックス
     navitime_chk_state = BooleanVar()
     navitime_chk_state.set(True)
-    navitime_chk = Checkbutton(labelframe2, text='NAVITIMEを検索する', var=navitime_chk_state)
+    navitime_chk = Checkbutton(
+        labelframe2, text='NAVITIMEを検索する', var=navitime_chk_state)
     navitime_chk.grid(row=1, column=0, padx=10, sticky=tkinter.W)
 
     # MAPION検索チェックボックス
     mapion_chk_state = BooleanVar()
     mapion_chk_state.set(True)
-    mapion_chk = Checkbutton(labelframe2, text='MAPIONを検索する', var=mapion_chk_state)
+    mapion_chk = Checkbutton(
+        labelframe2, text='MAPIONを検索する', var=mapion_chk_state)
     mapion_chk.grid(row=2, column=0, padx=10, sticky=tkinter.W)
 
     # 情報屋さん検索チェックボックス
     jouhouya_chk_state = BooleanVar()
     jouhouya_chk_state.set(True)
-    jouhouya_chk = Checkbutton(labelframe2, text='街の情報屋さんを検索する', var=jouhouya_chk_state)
+    jouhouya_chk = Checkbutton(
+        labelframe2, text='街の情報屋さんを検索する', var=jouhouya_chk_state)
     jouhouya_chk.grid(row=3, column=0, padx=10, sticky=tkinter.W)
 
     # おでかけタウン情報検索チェックボックス
     odekake_chk_state = BooleanVar()
     odekake_chk_state.set(True)
-    odekake_chk = Checkbutton(labelframe2, text='おでかけタウン情報を検索する', var=odekake_chk_state)
+    odekake_chk = Checkbutton(
+        labelframe2, text='おでかけタウン情報を検索する', var=odekake_chk_state)
     odekake_chk.grid(row=4, column=0, padx=10, sticky=tkinter.W)
 
     # Hotflog検索チェックボックス
     hotflog_chk_state = BooleanVar()
     hotflog_chk_state.set(True)
-    hotflog_chk = Checkbutton(labelframe2, text='Hotflogを検索する', var=hotflog_chk_state)
+    hotflog_chk = Checkbutton(
+        labelframe2, text='Hotflogを検索する', var=hotflog_chk_state)
     hotflog_chk.grid(row=0, column=1, padx=10, sticky=tkinter.W)
 
     # 実行ボタン
     InputButton = Button(frmMain, text="取得開始",
-                         command = lambda : execute_scraip(google_chk_state.get(), googleRadioValue.get(), goo_chk_state.get(),
-                                                           giftshop_chk_state.get(), navitime_chk_state.get(),
-                                                           mapion_chk_state.get(), jouhouya_chk_state.get(),
-                                                           odekake_chk_state.get(), hotflog_chk_state.get()))
+                         command=lambda: execute_scraip(google_chk_state.get(), googleRadioValue.get(), goo_chk_state.get(),
+                                                        giftshop_chk_state.get(), navitime_chk_state.get(),
+                                                        mapion_chk_state.get(), jouhouya_chk_state.get(),
+                                                        odekake_chk_state.get(), hotflog_chk_state.get()))
     InputButton.grid(row=2, column=1)
 
     root.mainloop()
@@ -173,8 +185,10 @@ def execute_scraip(google_flg, google_radio_flg, goo_flg, giftshop_flg, navitime
         logger.info('検索情報リストの読み込みを開始します')
 
         # 検索リストファイルの読み込み（全て欠損値がある行は読み込まない）
-        search_df = settings.read_search_list("./設定ファイル.xlsx", "検索設定", 0, "B:E", 0)
-        odekake_search_df = settings.read_search_list("./設定ファイル.xlsx", "おでかけタウン情報検索設定", 0, "B:E", 0)
+        search_df = settings.read_search_list(
+            "./設定ファイル.xlsx", "検索設定", 0, "B:E", 0)
+        odekake_search_df = settings.read_search_list(
+            "./設定ファイル.xlsx", "おでかけタウン情報検索設定", 0, "B:E", 0)
 
         for i in range(0, len(search_df)):
             _search = SearchInputInfo()
@@ -346,7 +360,8 @@ def goo_map_main():
     SITE_NAME = 'goo地図'
 
     # goo地図検索リストファイルの読み込み（全て欠損値がある行は読み込まない）
-    search_df = settings.read_search_list("./設定ファイル.xlsx", "goo地図設定", 0, "B:E", 0)
+    search_df = settings.read_search_list(
+        "./設定ファイル.xlsx", "goo地図設定", 0, "B:E", 0)
 
     for i in range(0, len(search_df)):
 
@@ -376,17 +391,22 @@ def goo_map_main():
 
         # キーワード作成
         search_keyword = search_dr.industry + " " + search_dr.prefecture
-        output_list = map_scraip.search_goo_map(driver, search_keyword, GOO_MAP_URL)
+        output_list = map_scraip.search_goo_map(
+            driver, search_keyword, GOO_MAP_URL)
         if output_list or len(output_list):
             output_excel_list.extend(output_list)
-            goo_success_list.append(search_dr.industry + "-" + search_dr.prefecture)
+            goo_success_list.append(
+                search_dr.industry + "-" + search_dr.prefecture)
         else:
-            goo_skip_list.append(search_dr.industry + "-" + search_dr.prefecture)
+            goo_skip_list.append(search_dr.industry +
+                                 "-" + search_dr.prefecture)
 
-        excel.out_to_excel(output_excel_list, search_dr.industry + "_" + search_dr.prefecture, search_dr, SITE_NAME, 6)
+        excel.out_to_excel(output_excel_list, search_dr.industry +
+                           "_" + search_dr.prefecture, search_dr, SITE_NAME, 6)
 
         # 辞書にシート名を登録
-        global_goo_sheetname_dic[sheet_index] = search_dr.industry + "_" + search_dr.prefecture
+        global_goo_sheetname_dic[sheet_index] = search_dr.industry + \
+            "_" + search_dr.prefecture
         sheet_index += 1
 
     # ブラウザを終了する。
@@ -407,7 +427,8 @@ def google_map_main(google_search_mode):
     SITE_NAME = 'Googleマップ'
 
     # Googleマップの検索リストファイルの読み込み（全て欠損値がある行は読み込まない）
-    search_df = settings.read_search_list("./設定ファイル.xlsx", "Googleマップ設定", 0, "B:E", 0)
+    search_df = settings.read_search_list(
+        "./設定ファイル.xlsx", "Googleマップ設定", 0, "B:E", 0)
 
     for i in range(0, len(search_df)):
 
@@ -416,9 +437,12 @@ def google_map_main(google_search_mode):
 
         # Googleマップの検索対象の市区町村リストの読み込み（全て欠損値がある行は読み込まない）
         if google_search_mode == 1:
-            municipality_df = settings.read_search_list("./設定ファイル.xlsx", "市区町村", 0, "B:C", 1)
-            target_municipality_df = municipality_df[municipality_df['都道府県名'].str.contains(_search.prefecture)]
-            target_municipality_list = target_municipality_df['市区町村名'].values.tolist()
+            municipality_df = settings.read_search_list(
+                "./設定ファイル.xlsx", "市区町村", 0, "B:C", 1)
+            target_municipality_df = municipality_df[municipality_df['都道府県名'].str.contains(
+                _search.prefecture)]
+            target_municipality_list = target_municipality_df['市区町村名'].values.tolist(
+            )
             _search.municipality_list = target_municipality_list
 
         # リストに追加
@@ -442,28 +466,37 @@ def google_map_main(google_search_mode):
         if google_search_mode == 1:
             for search_municipality in search_dr.municipality_list:
                 # キーワード作成
-                search_keyword = search_dr.industry + " " + search_dr.prefecture + search_municipality
-                output_list = map_scraip.search_google_map(driver, search_keyword, GOOGLE_MAP_URL)
+                search_keyword = search_dr.industry + " " + \
+                    search_dr.prefecture + search_municipality
+                output_list = map_scraip.search_google_map(
+                    driver, search_keyword, GOOGLE_MAP_URL)
                 if output_list or len(output_list):
                     output_excel_list.extend(output_list)
-                    google_success_list.append(search_dr.industry + "-" + search_dr.prefecture + "-" + search_municipality)
+                    google_success_list.append(
+                        search_dr.industry + "-" + search_dr.prefecture + "-" + search_municipality)
                 else:
-                    google_skip_list.append(search_dr.industry + "-" + search_dr.prefecture + "-" + search_municipality)
+                    google_skip_list.append(
+                        search_dr.industry + "-" + search_dr.prefecture + "-" + search_municipality)
 
         else:
             # キーワード作成
             search_keyword = search_dr.industry + " " + search_dr.prefecture
-            output_list = map_scraip.search_google_map(driver, search_keyword, GOOGLE_MAP_URL)
+            output_list = map_scraip.search_google_map(
+                driver, search_keyword, GOOGLE_MAP_URL)
             if output_list or len(output_list):
                 output_excel_list.extend(output_list)
-                google_success_list.append(search_dr.industry + "-" + search_dr.prefecture)
+                google_success_list.append(
+                    search_dr.industry + "-" + search_dr.prefecture)
             else:
-                google_skip_list.append(search_dr.industry + "-" + search_dr.prefecture)
+                google_skip_list.append(
+                    search_dr.industry + "-" + search_dr.prefecture)
 
-        excel.out_to_excel(output_excel_list, search_dr.industry + "_" + search_dr.prefecture, search_dr, SITE_NAME, 7)
+        excel.out_to_excel(output_excel_list, search_dr.industry +
+                           "_" + search_dr.prefecture, search_dr, SITE_NAME, 7)
 
         # 辞書にシート名を登録
-        global_google_sheetname_dic[sheet_index] = search_dr.industry + "_" + search_dr.prefecture
+        global_google_sheetname_dic[sheet_index] = search_dr.industry + \
+            "_" + search_dr.prefecture
         sheet_index += 1
 
     # ブラウザを終了する。
@@ -489,17 +522,21 @@ def giftshop_main(search_list):
         prefecture_param1 = "k1=" + search_dr.prefecture
         prefecture_param2 = "k2=" + search_dr.industry
 
-        target_url = GIFTSHOP_BASE_URL + prefecture_param1  + "&" + prefecture_param2 + SEARCH_PARAM
+        target_url = GIFTSHOP_BASE_URL + prefecture_param1 + \
+            "&" + prefecture_param2 + SEARCH_PARAM
 
         output_excel_list = []
 
-        output_list = scraip.search_giftshop(driver, target_url, search_dr.prefecture, search_dr.industry)
+        output_list = scraip.search_giftshop(
+            driver, target_url, search_dr.prefecture, search_dr.industry)
         output_excel_list.extend(output_list)
 
-        excel.out_to_excel(output_excel_list, search_dr.industry + "_" + search_dr.prefecture, search_dr, SITE_NAME, 1)
+        excel.out_to_excel(output_excel_list, search_dr.industry +
+                           "_" + search_dr.prefecture, search_dr, SITE_NAME, 1)
 
         # 辞書にシート名を登録
-        global_giftshop_sheetname_dic[sheet_index] = search_dr.industry + "_" + search_dr.prefecture
+        global_giftshop_sheetname_dic[sheet_index] = search_dr.industry + \
+            "_" + search_dr.prefecture
         sheet_index += 1
 
     # ブラウザを終了する。
@@ -528,13 +565,16 @@ def navitime_main(search_list):
 
         output_excel_list = []
 
-        output_list = scraip.search_navitime(driver, target_url, search_dr.prefecture, search_dr.industry)
+        output_list = scraip.search_navitime(
+            driver, target_url, search_dr.prefecture, search_dr.industry)
         output_excel_list.extend(output_list)
 
-        excel.out_to_excel(output_excel_list, search_dr.industry + "_" + search_dr.prefecture, search_dr, SITE_NAME, 2)
+        excel.out_to_excel(output_excel_list, search_dr.industry +
+                           "_" + search_dr.prefecture, search_dr, SITE_NAME, 2)
 
         # 辞書にシート名を登録
-        global_navitime_sheetname_dic[sheet_index] = search_dr.industry + "_" + search_dr.prefecture
+        global_navitime_sheetname_dic[sheet_index] = search_dr.industry + \
+            "_" + search_dr.prefecture
         sheet_index += 1
 
     # ブラウザを終了する。
@@ -563,13 +603,16 @@ def mapion_main(search_list):
 
         output_excel_list = []
 
-        output_list = scraip.search_mapion(driver, target_url, search_dr.prefecture, search_dr.industry)
+        output_list = scraip.search_mapion(
+            driver, target_url, search_dr.prefecture, search_dr.industry)
         output_excel_list.extend(output_list)
 
-        excel.out_to_excel(output_excel_list, search_dr.industry + "_" + search_dr.prefecture, search_dr, SITE_NAME, 3)
+        excel.out_to_excel(output_excel_list, search_dr.industry +
+                           "_" + search_dr.prefecture, search_dr, SITE_NAME, 3)
 
         # 辞書にシート名を登録
-        global_mapion_sheetname_dic[sheet_index] = search_dr.industry + "_" + search_dr.prefecture
+        global_mapion_sheetname_dic[sheet_index] = search_dr.industry + \
+            "_" + search_dr.prefecture
         sheet_index += 1
 
     # ブラウザを終了する。
@@ -595,13 +638,16 @@ def jouhouya_main(search_list):
 
         output_excel_list = []
 
-        output_list = scraip.search_jouhouya(driver, target_url, search_dr.prefecture, search_dr.industry)
+        output_list = scraip.search_jouhouya(
+            driver, target_url, search_dr.prefecture, search_dr.industry)
         output_excel_list.extend(output_list)
 
-        excel.out_to_excel(output_excel_list, search_dr.industry + "_" + search_dr.prefecture, search_dr, SITE_NAME, 4)
+        excel.out_to_excel(output_excel_list, search_dr.industry +
+                           "_" + search_dr.prefecture, search_dr, SITE_NAME, 4)
 
         # 辞書にシート名を登録
-        global_johouya_sheetname_dic[sheet_index] = search_dr.industry + "_" + search_dr.prefecture
+        global_johouya_sheetname_dic[sheet_index] = search_dr.industry + \
+            "_" + search_dr.prefecture
         sheet_index += 1
 
     # ブラウザを終了する。
@@ -628,14 +674,17 @@ def odekake_main(search_list):
         output_excel_list = []
         sheet_name = ''
         if len(search_dr.target_industry_str):
-            sheet_name = (search_dr.industry + "_" + search_dr.prefecture + "_" + search_dr.target_industry_str)[:30]
+            sheet_name = (search_dr.industry + "_" + search_dr.prefecture +
+                          "_" + search_dr.target_industry_str)[:30]
         else:
             sheet_name = (search_dr.industry + "_" + search_dr.prefecture)[:30]
 
-        output_list = scraip.search_odekake(driver, target_url, search_dr.prefecture, search_dr.industry)
+        output_list = scraip.search_odekake(
+            driver, target_url, search_dr.prefecture, search_dr.industry)
         output_excel_list.extend(output_list)
 
-        excel.out_to_excel(output_excel_list, sheet_name, search_dr, SITE_NAME, 5)
+        excel.out_to_excel(output_excel_list, sheet_name,
+                           search_dr, SITE_NAME, 5)
 
         # 辞書にシート名を登録
         global_odekake_sheetname_dic[sheet_index] = sheet_name
@@ -654,23 +703,27 @@ def hotflog_main(search_list):
     SITE_NAME = 'Hotflog'
 
     # ドライバー生成処理
-    driver = scraip.create_driver(headless_flg=True)
+    driver = scraip.create_driver(headless_flg=False)
 
     sheet_index = 1
 
     for search_dr in search_list:
 
-        target_url = HOTFLOG_BASE_URL + 'search/' + search_dr.prefecture + '/' + search_dr.industry
+        target_url = HOTFLOG_BASE_URL + 'search/' + \
+            search_dr.prefecture + '/' + search_dr.industry
 
         output_excel_list = []
 
-        output_list = scraip.search_hotflog(driver, target_url, search_dr.prefecture, search_dr.industry)
+        output_list = scraip.search_hotflog(
+            driver, target_url, search_dr.prefecture, search_dr.industry)
         output_excel_list.extend(output_list)
 
-        excel.out_to_excel(output_excel_list, search_dr.industry + "_" + search_dr.prefecture, search_dr, SITE_NAME, 8)
+        excel.out_to_excel(output_excel_list, search_dr.industry +
+                           "_" + search_dr.prefecture, search_dr, SITE_NAME, 8)
 
         # 辞書にシート名を登録
-        global_hotflog_sheetname_dic[sheet_index] = search_dr.industry + "_" + search_dr.prefecture
+        global_hotflog_sheetname_dic[sheet_index] = search_dr.industry + \
+            "_" + search_dr.prefecture
         sheet_index += 1
 
     # ブラウザを終了する。

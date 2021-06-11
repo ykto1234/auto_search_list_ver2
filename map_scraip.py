@@ -22,8 +22,10 @@ logger = mylogger.setup_logger(__name__)
 def scroll_down(driver, element):
     for index in range(0, 5):
         # ページの高さを取得
-        height = driver.execute_script("return arguments[0].scrollHeight", element)
-        driver.execute_script("arguments[0].scrollTo(0, " + str(height) + ");", element)
+        height = driver.execute_script(
+            "return arguments[0].scrollHeight", element)
+        driver.execute_script(
+            "arguments[0].scrollTo(0, " + str(height) + ");", element)
         time.sleep(1.0)
 
 
@@ -59,14 +61,16 @@ def search_google_map(driver, search_keyword, url):
             WebDriverWait(driver, 30).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, Panel_sel))
             )
-            count1_soup = BeautifulSoup(driver.page_source, features="html.parser")
+            count1_soup = BeautifulSoup(
+                driver.page_source, features="html.parser")
             img_results = count1_soup.select(Img_sel)
             if len(img_results):
                 # 1件取得用の処理
                 # 初期値設定
                 _searchOutputInfo = SearchOutputInfo()
                 _searchOutputInfo.search_keyword = search_keyword
-                _searchOutputInfo.search_areaname = search_keyword.split(" ")[1]
+                _searchOutputInfo.search_areaname = search_keyword.split(" ")[
+                    1]
                 _searchOutputInfo.storename = NO_DATA_STR
                 _searchOutputInfo.industry = NO_DATA_STR
                 _searchOutputInfo.address = NO_DATA_STR
@@ -75,13 +79,16 @@ def search_google_map(driver, search_keyword, url):
 
                 # 値の取得
                 if len(count1_soup.select("h1")):
-                    _searchOutputInfo.storename = count1_soup.select("h1")[0].text.strip()
+                    _searchOutputInfo.storename = count1_soup.select("h1")[
+                        0].text.strip()
 
                 if len(count1_soup.select("span.section-rating-term")):
-                    _searchOutputInfo.industry = count1_soup.select("span.section-rating-term")[1].text
+                    _searchOutputInfo.industry = count1_soup.select(
+                        "span.section-rating-term")[1].text
 
                 if len(count1_soup.select("div.ugiz4pqJLAG__primary-text.gm2-body-2")):
-                    address_info = count1_soup.select("div.ugiz4pqJLAG__primary-text.gm2-body-2")[0].text
+                    address_info = count1_soup.select(
+                        "div.ugiz4pqJLAG__primary-text.gm2-body-2")[0].text
                     if address_info:
                         address_list = address_info.split(" ")
                         # 郵便番号
@@ -90,7 +97,7 @@ def search_google_map(driver, search_keyword, url):
                         # 住所
                         address = ""
                         for address_str in address_list:
-                            postal_code_mo =  postal_code_rx.search(address_str)
+                            postal_code_mo = postal_code_rx.search(address_str)
                             if postal_code_mo:
                                 postal_code = postal_code_mo.group()
                             else:
@@ -106,7 +113,7 @@ def search_google_map(driver, search_keyword, url):
                     if aria_label:
                         tel_pattern = r"\d{2,4}-\d{2,4}-\d{2,4}"
                         tel_number_rx = re.compile(tel_pattern)
-                        tel_number_mo =  tel_number_rx.search(aria_label)
+                        tel_number_mo = tel_number_rx.search(aria_label)
                         if tel_number_mo:
                             tel_number_text = tel_number_mo.group().replace('-', '')
                             _searchOutputInfo.tel_number = tel_number_text
@@ -115,13 +122,16 @@ def search_google_map(driver, search_keyword, url):
                 for action_button in driver.find_elements_by_css_selector(action_byn_sel):
                     action_button_aria_label = ""
                     if action_button:
-                        action_button_aria_label = action_button.get_attribute("aria-label")
+                        action_button_aria_label = action_button.get_attribute(
+                            "aria-label")
                     # ウェブサイト
                     if action_button_aria_label and "ウェブサイトをコピーします" in action_button_aria_label:
                         WebDriverWait(driver, 30).until(
-                            EC.element_to_be_clickable((By.CSS_SELECTOR, action_byn_sel))
+                            EC.element_to_be_clickable(
+                                (By.CSS_SELECTOR, action_byn_sel))
                         )
-                        driver.execute_script("arguments[0].click();", action_button)
+                        driver.execute_script(
+                            "arguments[0].click();", action_button)
                         web_url = pyperclip.paste()
                         _searchOutputInfo.web_url = web_url
                         break
@@ -144,20 +154,22 @@ def search_google_map(driver, search_keyword, url):
 
             # 結果リストを取得する
             div_results = []
-            DivResult_sel = "a.place-result-container-place-link"
-            DivInfo_sel = "h1.section-hero-header-title-title"
+            DivResult_sel = 'a[href*="www.google.co.jp/maps/place"]'
+            DivInfo_sel = "h1 > span"
             ButtonBack_sel = "button.section-back-to-list-button"
-            NextBtn_xpath = '//*[@id="n7lv7yjyC35__section-pagination-button-next"]'
+            NextBtn_sel = 'button[aria-label="次のページ"]'
 
             # ターゲット出現を待機
             WebDriverWait(driver, 30).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, DivResult_sel))
+                EC.presence_of_element_located(
+                    (By.CSS_SELECTOR, DivResult_sel))
             )
             # ページ遷移が上手くできていないことがあるため、チェック処理を加える
             if before_div_results:
                 before_a = before_div_results[-1]
                 for tmp in range(0, 30):
-                    soup = BeautifulSoup(driver.page_source, features="html.parser")
+                    soup = BeautifulSoup(
+                        driver.page_source, features="html.parser")
                     after_div_results = soup.select(DivResult_sel)
                     if after_div_results:
                         after_a = after_div_results[-1]
@@ -179,24 +191,27 @@ def search_google_map(driver, search_keyword, url):
             all_div_results.extend(div_results)
 
             # 次のページボタンが押せるか確認
-            NextBtn_sel = "section-pagination-button-next"
+            # NextBtn_sel2 = "section-pagination-button-next"
             WebDriverWait(driver, 30).until(
-                EC.presence_of_element_located((By.XPATH, NextBtn_xpath))
+                EC.presence_of_element_located((By.CSS_SELECTOR, NextBtn_sel))
             )
-            main_soup = BeautifulSoup(driver.page_source, features="html.parser")
-            btn_next_ele = []
+            main_soup = BeautifulSoup(
+                driver.page_source, features="html.parser")
+            btn_next_eles = []
             btn_next_disabled = None
-            btn_next_ele = main_soup.find_all('button', id=re.compile(NextBtn_sel))
-            btn_next_disabled = btn_next_ele[0].has_attr("disabled")
+            # btn_next_ele = main_soup.find_all(
+            #     'button', id=re.compile(NextBtn_sel2))
+            btn_next_eles = main_soup.select(NextBtn_sel)
+            btn_next_disabled = btn_next_eles[0].has_attr("disabled")
             if bool(btn_next_disabled):
                 # 非活性の場合
                 break
             else:
                 # 活性の場合、次のページボタンを押下する
-                next_btn_ele = driver.find_element_by_xpath(NextBtn_xpath)
+                # next_btn_ele = driver.find_element_by_xpath(NextBtn_sel2)
+                next_btn_ele = driver.find_element_by_css_selector(NextBtn_sel)
                 driver.execute_script("arguments[0].click();", next_btn_ele)
                 time.sleep(1.0)
-
 
         for index in range(0, len(all_div_results)):
 
@@ -206,7 +221,8 @@ def search_google_map(driver, search_keyword, url):
             WebDriverWait(driver, 30).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, DivInfo_sel))
             )
-            detail_soup = BeautifulSoup(driver.page_source, features="html.parser")
+            detail_soup = BeautifulSoup(
+                driver.page_source, features="html.parser")
 
             # 初期値設定
             _searchOutputInfo = SearchOutputInfo()
@@ -220,11 +236,59 @@ def search_google_map(driver, search_keyword, url):
 
             # 値の設定
             if len(detail_soup.select("h1")):
-                _searchOutputInfo.storename = detail_soup.select("h1")[0].text.strip()
+                _searchOutputInfo.storename = detail_soup.select("h1")[
+                    0].text.strip()
 
-            if len(detail_soup.select("div.ugiz4pqJLAG__primary-text.gm2-body-2")):
-                address_info = detail_soup.select("div.ugiz4pqJLAG__primary-text.gm2-body-2")[0].text
-                if address_info:
+            # address_info_sel = "div.gm2-body-2"
+            # if len(detail_soup.select(address_info_sel)):
+            #     address_info = detail_soup.select(address_info_sel)[0].text
+            #     if address_info:
+            #         address_list = address_info.split(" ")
+            #         # 郵便番号
+            #         postal_code_pattern = r"\d{3}-\d{4}"
+            #         postal_code_rx = re.compile(postal_code_pattern)
+            #         # 住所
+            #         address = ""
+            #         for address_str in address_list:
+            #             postal_code_mo = postal_code_rx.search(address_str)
+            #             if postal_code_mo:
+            #                 postal_code = postal_code_mo.group()
+            #             else:
+            #                 address += address_str
+            #         _searchOutputInfo.address = address
+            #         _searchOutputInfo.postal_code = postal_code
+
+            for indeustry_content in driver.find_elements_by_xpath('//button[@jsaction="pane.rating.category"]'):
+                _searchOutputInfo.industry = indeustry_content.text
+
+            # for detail_content in detail_soup.select("button.CsEnBe"):
+            #     aria_label = ""
+            #     if detail_content:
+            #         aria_label = detail_content.get_attribute("aria-label")
+            #     # 電話番号
+            #     if aria_label:
+            #         tel_pattern = r"\d{2,4}-\d{2,4}-\d{2,4}"
+            #         tel_number_rx = re.compile(tel_pattern)
+            #         tel_number_mo = tel_number_rx.search(aria_label)
+            #         if tel_number_mo:
+            #             tel_number_text = tel_number_mo.group().replace('-', '')
+            #             _searchOutputInfo.tel_number = tel_number_text
+
+            action_byn_sel = "button.section-action-chip-button"
+            for action_button in driver.find_elements_by_css_selector(action_byn_sel):
+                action_button_aria_label = ""
+                if action_button:
+                    action_button_aria_label = action_button.get_attribute(
+                        "aria-label")
+
+                # 住所
+                if action_button_aria_label and "住所をコピーします" in action_button_aria_label:
+                    WebDriverWait(driver, 30).until(
+                        EC.element_to_be_clickable(
+                            (By.CSS_SELECTOR, action_byn_sel))
+                    )
+                    action_button.click()
+                    address_info = pyperclip.paste()
                     address_list = address_info.split(" ")
                     # 郵便番号
                     postal_code_pattern = r"\d{3}-\d{4}"
@@ -232,7 +296,7 @@ def search_google_map(driver, search_keyword, url):
                     # 住所
                     address = ""
                     for address_str in address_list:
-                        postal_code_mo =  postal_code_rx.search(address_str)
+                        postal_code_mo = postal_code_rx.search(address_str)
                         if postal_code_mo:
                             postal_code = postal_code_mo.group()
                         else:
@@ -240,36 +304,26 @@ def search_google_map(driver, search_keyword, url):
                     _searchOutputInfo.address = address
                     _searchOutputInfo.postal_code = postal_code
 
-            for indeustry_content in driver.find_elements_by_xpath('//button[@jsaction="pane.rating.category"]'):
-                _searchOutputInfo.industry = indeustry_content.text
-
-            for detail_content in driver.find_elements_by_css_selector("button.ugiz4pqJLAG__button"):
-                aria_label = ""
-                if detail_content:
-                    aria_label = detail_content.get_attribute("aria-label")
                 # 電話番号
-                if aria_label:
-                    tel_pattern = r"\d{2,4}-\d{2,4}-\d{2,4}"
-                    tel_number_rx = re.compile(tel_pattern)
-                    tel_number_mo =  tel_number_rx.search(aria_label)
-                    if tel_number_mo:
-                        tel_number_text = tel_number_mo.group().replace('-', '')
-                        _searchOutputInfo.tel_number = tel_number_text
-
-            action_byn_sel = "button.section-action-chip-button"
-            for action_button in driver.find_elements_by_css_selector(action_byn_sel):
-                action_button_aria_label = ""
-                if action_button:
-                    action_button_aria_label = action_button.get_attribute("aria-label")
-                # ウェブサイト
-                if action_button_aria_label and "ウェブサイトをコピーします" in action_button_aria_label:
+                elif action_button_aria_label and "電話番号をコピーします" in action_button_aria_label:
                     WebDriverWait(driver, 30).until(
-                        EC.element_to_be_clickable((By.CSS_SELECTOR, action_byn_sel))
+                        EC.element_to_be_clickable(
+                            (By.CSS_SELECTOR, action_byn_sel))
+                    )
+                    action_button.click()
+                    tel_number_text = pyperclip.paste()
+                    _searchOutputInfo.tel_number = tel_number_text.replace(
+                        '-', '').replace('+81', '0')
+
+                # ウェブサイト
+                elif action_button_aria_label and "ウェブサイトをコピーします" in action_button_aria_label:
+                    WebDriverWait(driver, 30).until(
+                        EC.element_to_be_clickable(
+                            (By.CSS_SELECTOR, action_byn_sel))
                     )
                     action_button.click()
                     web_url = pyperclip.paste()
                     _searchOutputInfo.web_url = web_url
-                    break
 
             searchOutputInfoList.append(_searchOutputInfo)
 
@@ -340,7 +394,8 @@ def search_goo_map(driver, search_keyword, url):
                 WebDriverWait(driver, 30).until(
                     EC.presence_of_element_located((By.CSS_SELECTOR, h3_sel))
                 )
-                tmp_soup = BeautifulSoup(driver.page_source, features="html.parser")
+                tmp_soup = BeautifulSoup(
+                    driver.page_source, features="html.parser")
 
                 h3_list = tmp_soup.select(h3_sel)
                 target_idx = 0
@@ -360,7 +415,8 @@ def search_goo_map(driver, search_keyword, url):
                 # 初期値設定
                 _searchOutputInfo = SearchOutputInfo()
                 _searchOutputInfo.search_keyword = search_keyword
-                _searchOutputInfo.search_areaname = search_keyword.split(" ")[1]
+                _searchOutputInfo.search_areaname = search_keyword.split(" ")[
+                    1]
                 _searchOutputInfo.storename = NO_DATA_STR
                 _searchOutputInfo.address = NO_DATA_STR
                 _searchOutputInfo.tel_number = NO_DATA_STR
@@ -371,15 +427,18 @@ def search_goo_map(driver, search_keyword, url):
                     team_text = basic_info_li.select(team_sel)[0].text
 
                     if team_text == "お店/施設名":
-                        _searchOutputInfo.storename = basic_info_li.select(description_sel + " > p")[0].text.strip()
+                        _searchOutputInfo.storename = basic_info_li.select(
+                            description_sel + " > p")[0].text.strip()
                         continue
 
                     if team_text == "住所":
-                        _searchOutputInfo.address = basic_info_li.select(description_sel + " > p")[0].text.strip()
+                        _searchOutputInfo.address = basic_info_li.select(
+                            description_sel + " > p")[0].text.strip()
                         continue
 
                     if team_text == "公式HP":
-                        _searchOutputInfo.web_url = basic_info_li.select(description_sel + " > a")[0].text.strip()
+                        _searchOutputInfo.web_url = basic_info_li.select(
+                            description_sel + " > a")[0].text.strip()
                         continue
 
                     if team_text == "ジャンル":
@@ -396,14 +455,17 @@ def search_goo_map(driver, search_keyword, url):
                         # 電話番号アンカークリック
                         a_tel_sel = "a#tel_pagelink"
                         div_tel_sel = "div.modal-tel__number"
-                        tel_num_btn = driver.find_elements_by_css_selector(a_tel_sel)
+                        tel_num_btn = driver.find_elements_by_css_selector(
+                            a_tel_sel)
                         if len(tel_num_btn):
                             tel_num_btn[0].click()
                             # 電話番号取得
                             WebDriverWait(driver, 30).until(
-                                EC.presence_of_element_located((By.CSS_SELECTOR, div_tel_sel))
+                                EC.presence_of_element_located(
+                                    (By.CSS_SELECTOR, div_tel_sel))
                             )
-                            tel_number_text = driver.find_elements_by_css_selector(div_tel_sel)[0].text.strip()
+                            tel_number_text = driver.find_elements_by_css_selector(div_tel_sel)[
+                                0].text.strip()
                             tel_number_text = tel_number_text.replace('-', '')
                             _searchOutputInfo.tel_number = tel_number_text
                         continue

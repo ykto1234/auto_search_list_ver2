@@ -18,13 +18,15 @@ import urllib
 # ログの定義
 logger = mylogger.setup_logger(__name__)
 
+
 def create_driver(headless_flg=False):
     # chromeドライバーのパス
     chrome_path = "./driver/chromedriver.exe"
 
     # Selenium用オプション
     op = Options()
-    op.add_argument('--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Safari/605.1.15')
+    op.add_argument(
+        '--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Safari/605.1.15')
     op.add_experimental_option("excludeSwitches", ["enable-automation"])
     op.add_experimental_option('useAutomationExtension', False)
 
@@ -45,7 +47,8 @@ def search_giftshop(driver, url, prefecture, industry):
         driver.get(url)
 
         # ドメインのURLを取得
-        domain_url = '{uri.scheme}://{uri.netloc}/'.format(uri=urllib.parse.urlparse(url))
+        domain_url = '{uri.scheme}://{uri.netloc}/'.format(
+            uri=urllib.parse.urlparse(url))
 
         # 結果データリスト
         searchOutputInfoList = []
@@ -95,7 +98,8 @@ def search_giftshop(driver, url, prefecture, industry):
             WebDriverWait(driver, 30).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, table_sel))
             )
-            detail_soup = BeautifulSoup(driver.page_source, features="html.parser")
+            detail_soup = BeautifulSoup(
+                driver.page_source, features="html.parser")
             table_ele = detail_soup.select(table_sel)[0]
             row_header_eles = table_ele.select(row_header_sel)
             index = 0
@@ -159,7 +163,8 @@ def search_giftshop(driver, url, prefecture, industry):
             WebDriverWait(driver, 30).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, table_sel))
             )
-            detail_soup = BeautifulSoup(driver.page_source, features="html.parser")
+            detail_soup = BeautifulSoup(
+                driver.page_source, features="html.parser")
             table_ele = detail_soup.select(table_sel)[0]
             row_header_eles = table_ele.select(row_header_sel)
             index = 0
@@ -191,7 +196,6 @@ def search_giftshop(driver, url, prefecture, industry):
 
         return searchOutputInfoList
 
-
     except TimeoutException:
         logger.error("TimeoutExceptionが発生したため、次の検索に移ります")
         logger.error("ギフトショップ検索処理 検索県名：" + prefecture + "、キーワード：" + industry)
@@ -203,7 +207,8 @@ def search_navitime(driver, url, prefecture, industry):
         driver.get(url)
 
         # ドメインのURLを取得
-        domain_url = '{uri.scheme}://{uri.netloc}/'.format(uri=urllib.parse.urlparse(url))
+        domain_url = '{uri.scheme}://{uri.netloc}/'.format(
+            uri=urllib.parse.urlparse(url))
 
         # 結果データリスト
         searchOutputInfoList = []
@@ -257,7 +262,8 @@ def search_navitime(driver, url, prefecture, industry):
                 address_ele = detail_ele.select(address_sel)
                 if len(address_ele):
                     # [地図]部分を削除
-                    _searchOutputInfo.address = address_ele[0].text.replace('[地図]', '')
+                    _searchOutputInfo.address = address_ele[0].text.replace(
+                        '[地図]', '')
 
                 # 電話番号
                 tel_num_ele = []
@@ -298,7 +304,6 @@ def search_navitime(driver, url, prefecture, industry):
 
         return searchOutputInfoList
 
-
     except TimeoutException:
         logger.error("TimeoutExceptionが発生したため、次の検索に移ります")
         logger.error("NAVITIME検索処理 検索県名：" + prefecture + "、キーワード：" + industry)
@@ -310,7 +315,8 @@ def search_mapion(driver, url, prefecture, industry):
         driver.get(url)
 
         # ドメインのURLを取得
-        domain_url = '{uri.scheme}://{uri.netloc}/'.format(uri=urllib.parse.urlparse(url))
+        domain_url = '{uri.scheme}://{uri.netloc}/'.format(
+            uri=urllib.parse.urlparse(url))
 
         # 結果データリスト
         searchOutputInfoList = []
@@ -354,7 +360,8 @@ def search_mapion(driver, url, prefecture, industry):
                 store_name_ele = []
                 store_name_ele = data_ele.select(title_sel)
                 if len(store_name_ele):
-                    _searchOutputInfo.storename = store_name_ele[0].text.strip()
+                    _searchOutputInfo.storename = store_name_ele[0].text.strip(
+                    )
 
                 pattern = re.compile(r'[\(]{0,1}[0-9]{2,4}[\)\-\(]')
 
@@ -386,7 +393,6 @@ def search_mapion(driver, url, prefecture, industry):
 
         return searchOutputInfoList
 
-
     except TimeoutException:
         logger.error("TimeoutExceptionが発生したため、次の検索に移ります")
         logger.error("MAPION検索処理 検索県名：" + prefecture + "、キーワード：" + industry)
@@ -398,7 +404,8 @@ def search_jouhouya(driver, url, prefecture, industry):
         driver.get(url)
 
         # ドメインのURLを取得
-        domain_url = '{uri.scheme}://{uri.netloc}/'.format(uri=urllib.parse.urlparse(url))
+        domain_url = '{uri.scheme}://{uri.netloc}/'.format(
+            uri=urllib.parse.urlparse(url))
 
         # 結果データリスト
         searchOutputInfoList = []
@@ -441,7 +448,6 @@ def search_jouhouya(driver, url, prefecture, industry):
         input_form.send_keys(industry)
         input_form.send_keys(Keys.ENTER)
 
-
         # 次ページが押せなくなるまで繰り返す
         while True:
             time.sleep(2.5)
@@ -449,9 +455,11 @@ def search_jouhouya(driver, url, prefecture, industry):
             content_main_sel = "div#content-main"
             a_sel = "dl.li_box > dt > a"
             WebDriverWait(driver, 30).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, content_main_sel))
+                EC.presence_of_element_located(
+                    (By.CSS_SELECTOR, content_main_sel))
             )
-            search_soup = BeautifulSoup(driver.page_source, features="html.parser")
+            search_soup = BeautifulSoup(
+                driver.page_source, features="html.parser")
             content_main_eles = search_soup.select(content_main_sel)
 
             if not len(content_main_eles):
@@ -489,7 +497,8 @@ def search_jouhouya(driver, url, prefecture, industry):
                 WebDriverWait(driver, 30).until(
                     EC.presence_of_element_located((By.CSS_SELECTOR, top_sel))
                 )
-                detail_soup = BeautifulSoup(driver.page_source, features="html.parser")
+                detail_soup = BeautifulSoup(
+                    driver.page_source, features="html.parser")
                 top_content = detail_soup.select(top_sel)
 
                 if not top_content:
@@ -514,13 +523,15 @@ def search_jouhouya(driver, url, prefecture, industry):
                         address_eles = tr.select(address_sel)
                         if len(address_eles) > 0:
                             address = address_eles[0].text
-                        _searchOutputInfo.postal_code = zip_code.replace("〒", "")
+                        _searchOutputInfo.postal_code = zip_code.replace(
+                            "〒", "")
                         _searchOutputInfo.address = address
                         continue
 
                     if name == "ＴＥＬ":
                         tel_number = tr.select(display_value_sel)[0].text
-                        _searchOutputInfo.tel_number = tel_number.replace("-", "")
+                        _searchOutputInfo.tel_number = tel_number.replace(
+                            "-", "")
                         continue
 
                 searchOutputInfoList.append(_searchOutputInfo)
@@ -541,7 +552,6 @@ def search_jouhouya(driver, url, prefecture, industry):
 
         return searchOutputInfoList
 
-
     except TimeoutException:
         logger.error("TimeoutExceptionが発生したため、次の検索に移ります")
         logger.error("街の情報屋さん検索処理 検索県名：" + prefecture + "、キーワード：" + industry)
@@ -551,7 +561,8 @@ def search_jouhouya(driver, url, prefecture, industry):
 def search_odekake(driver, url, prefecture, industry):
     try:
         # ドメインのURLを取得
-        domain_url = '{uri.scheme}://{uri.netloc}/'.format(uri=urllib.parse.urlparse(url))
+        domain_url = '{uri.scheme}://{uri.netloc}/'.format(
+            uri=urllib.parse.urlparse(url))
 
         # 結果データリスト
         searchOutputInfoList = []
@@ -573,7 +584,8 @@ def search_odekake(driver, url, prefecture, industry):
         h1_eles = tmp_soup.select(h1_sel)
         for h1_ele in h1_eles:
             if '404 File not found' in h1_ele.text:
-                logger.info('検索結果が見つかりませんでした。検索条件：' + prefecture + ' ' + industry)
+                logger.info('検索結果が見つかりませんでした。検索条件：' +
+                            prefecture + ' ' + industry)
                 return searchOutputInfoList
 
         # 次ページが押せなくなるまで繰り返す
@@ -610,14 +622,14 @@ def search_odekake(driver, url, prefecture, industry):
                 _searchOutputInfo.storename = item_list[0]
                 client_info_list = item_list[1].split('\u3000')
                 if len(client_info_list) > 0:
-                   postalcode_text = client_info_list[0].replace('〒', '')
-                   _searchOutputInfo.postal_code = postalcode_text
+                    postalcode_text = client_info_list[0].replace('〒', '')
+                    _searchOutputInfo.postal_code = postalcode_text
                 if len(client_info_list) > 1:
-                   _searchOutputInfo.address = client_info_list[1]
+                    _searchOutputInfo.address = client_info_list[1]
                 if len(client_info_list) > 2:
-                   tel_number_text = client_info_list[2].replace('TEL', '')
-                   tel_number_text = tel_number_text.replace('-', '')
-                   _searchOutputInfo.tel_number = tel_number_text.strip()
+                    tel_number_text = client_info_list[2].replace('TEL', '')
+                    tel_number_text = tel_number_text.replace('-', '')
+                    _searchOutputInfo.tel_number = tel_number_text.strip()
 
                 _searchOutputInfo.industry = industry
 
@@ -645,7 +657,6 @@ def search_odekake(driver, url, prefecture, industry):
 
         return searchOutputInfoList
 
-
     except TimeoutException:
         logger.error("TimeoutExceptionが発生したため、次の検索に移ります")
         logger.error("おでかけタウン情報検索処理 検索県名：" + prefecture + "、キーワード：" + industry)
@@ -661,14 +672,15 @@ def search_hotflog(driver, url, prefecture, industry):
         driver.get(url)
 
         # ドメインのURLを取得
-        domain_url = '{uri.scheme}://{uri.netloc}/'.format(uri=urllib.parse.urlparse(url))
+        domain_url = '{uri.scheme}://{uri.netloc}/'.format(
+            uri=urllib.parse.urlparse(url))
 
         # データがなかった時ようのハイフン
         NO_DATA_STR = '-'
 
         page_index = 1
 
-         # 次ページが押せなくなるまで繰り返す
+        # 次ページが押せなくなるまで繰り返す
         while True:
 
             # ターゲット出現を待機
@@ -702,11 +714,13 @@ def search_hotflog(driver, url, prefecture, industry):
 
                 text_eles = div_ele.select(tel_text_sel)
                 if len(text_eles):
-                    _searchOutputInfo.tel_number = text_eles[0].text.strip().replace('-', '')
+                    _searchOutputInfo.tel_number = text_eles[0].text.strip().replace(
+                        '-', '')
 
                 storename_eles = div_ele.select(storename_sel)
                 if len(storename_eles):
-                    _searchOutputInfo.storename = storename_eles[0].text.strip()
+                    _searchOutputInfo.storename = storename_eles[0].text.strip(
+                    )
 
                 address_eles = div_ele.select(address_sel)
                 if len(address_eles) >= 2:
@@ -719,16 +733,17 @@ def search_hotflog(driver, url, prefecture, industry):
 
                     if len(address_list) == 3:
                         postalcode_str = address_list[-1].strip()
-                        postal_code_mo =  postal_code_rx.search(postalcode_str)
+                        postal_code_mo = postal_code_rx.search(postalcode_str)
                         if postal_code_mo:
                             _searchOutputInfo.postal_code = postal_code_mo.group()
                         _searchOutputInfo.address = address_list[0].strip()
                     elif len(address_list) == 4:
                         postalcode_str = address_list[-1].strip()
-                        postal_code_mo =  postal_code_rx.search(postalcode_str)
+                        postal_code_mo = postal_code_rx.search(postalcode_str)
                         if postal_code_mo:
                             _searchOutputInfo.postal_code = postal_code_mo.group()
-                        _searchOutputInfo.address = address_list[2].strip()  + address_list[1].strip() + address_list[0].strip()
+                        _searchOutputInfo.address = address_list[2].strip(
+                        ) + address_list[1].strip() + address_list[0].strip()
 
                 website_eles = div_ele.select(website_sel)
                 for website_ele in website_eles:
@@ -766,7 +781,6 @@ def search_hotflog(driver, url, prefecture, industry):
                 break
 
         return searchOutputInfoList
-
 
     except TimeoutException:
         logger.error("TimeoutExceptionが発生したため、次の検索に移ります")
